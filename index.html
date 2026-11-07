@@ -52,7 +52,7 @@
   .close:hover{color:#0b1220}
   button:focus,a:focus,input:focus{outline:3px solid #60a5fa;outline-offset:2px;border-radius:10px}
 
-  /* header principale (cliccabile) */
+  /* Header e pulsante di ritorno alla Home */
   .header{
     height:56px;
     display:flex;
@@ -64,11 +64,31 @@
     position:sticky;
     top:0;
     z-index:5;
-    cursor:pointer;
     font-size:16px;       /* mobile base */
     letter-spacing:0.3px;
     text-transform:none;  /* mantiene "Nodules" con N maiuscola */
   }
+  .header-back{
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    width:40px;
+    height:40px;
+    padding:8px;
+    border:0;
+    border-radius:10px;
+    background:transparent;
+    color:#fff;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .header-back.visible{display:flex}
+  .header-back svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .header-back:hover{background:rgba(255,255,255,.11)}
+  .header-back:focus-visible{outline:2px solid #fff;outline-offset:2px}
   @media (min-width:900px){
     .header{
       height:64px;        /* barra più spessa su desktop */
@@ -82,6 +102,10 @@
   .home-title{font-size:36px;font-weight:900;letter-spacing:1px;color:var(--blue);line-height:38px;text-align:center;margin-top:24px}
   .home-sub{text-align:center;font-size:14px;color:#333;margin-top:8px}
   .home-grid{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  #screen-home.active{display:flex;flex-direction:column;min-height:calc(100vh - 56px);min-height:calc(100dvh - 56px)}
+  #screen-home .home-wrap{flex:1}
+  .home-credit{padding:16px 12px 22px;text-align:center;color:#a3acba;font-size:11px;line-height:1.65;font-weight:400;letter-spacing:.1px}
+  @media (min-width:900px){#screen-home.active{min-height:calc(100vh - 64px);min-height:calc(100dvh - 64px)}}
 
   /* screen switch */
   .screen{display:none}
@@ -109,9 +133,12 @@
   JavaScript disabilitato o con errori: mostro la HOME di anteprima.
 </noscript>
 
-<!-- HEADER cliccabile per tornare alla home -->
-<div class="header" id="appHeader" role="button" tabindex="0" title="Go to Home">
-  EU-TIRADS Thyroid Nodules
+<!-- Freccia visibile nelle sezioni interne: ritorno alla Home -->
+<div class="header" id="appHeader">
+  <button type="button" id="homeBackBtn" class="header-back" aria-label="Back to Home" title="Back to Home">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </button>
+  <span>EU-TIRADS Thyroid Nodules</span>
 </div>
 
 <!-- HOME -->
@@ -127,6 +154,11 @@
       <button class="btn-white" onclick="alert('Add your info/disclaimer/credits here')">Information about the app</button>
     </div>
   </div>
+  <footer class="home-credit">
+    Powered by Dott.Daniele Piasentin<br>
+    Endocrinologia e Malattie del Metabolismo<br>
+    AOVR
+  </footer>
 </section>
 
 <!-- CLASSIFICATION -->
@@ -269,6 +301,7 @@ window.onclick=function(e){document.querySelectorAll(".modal").forEach(function(
 function applyRoute(){
   var {route, params} = parseHash();
   if(!route){ route = window.ReactNativeWebView ? 'class' : 'home'; }
+  document.getElementById('homeBackBtn').classList.toggle('visible', route!=='home');
   if(route==='home'){ showScreen('screen-home'); return; }
   if(route==='follow'){
     showScreen('screen-follow');
@@ -290,7 +323,7 @@ function applyRoute(){
 window.addEventListener('hashchange', applyRoute);
 applyRoute();
 
-/* --- Clic su header = torna alla home --- */
+/* --- Pulsante freccia: torna alla home --- */
 function goHome(){
   if(window.ReactNativeWebView){
     window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'OPEN_HOME' }));
@@ -298,13 +331,7 @@ function goHome(){
     location.hash = '#home';
   }
 }
-const hdr=document.getElementById('appHeader');
-if(hdr){
-  hdr.addEventListener('click', goHome);
-  hdr.addEventListener('keydown', e=>{
-    if(e.key==='Enter' || e.key===' ') goHome();
-  });
-}
+document.getElementById('homeBackBtn').addEventListener('click', goHome);
 
 /* ------- CLASSIFICATION logic ------- */
 document.addEventListener("change",function(e){
