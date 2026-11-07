@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>EU-TIRADS — Classification & Follow-up</title>
+<style>
+  :root{--blue:#0f3a69}
+  html,body{margin:0;padding:0;background:#f8fafc}
+  body{font-family:-apple-system,Roboto,Arial,"Helvetica Neue",sans-serif;color:#0b1220}
+  a{color:inherit}
+  .container{padding:18px 16px 160px;max-width:860px;margin:0 auto}
+  h2{text-align:center;margin:8px 0 4px;color:var(--blue);font-weight:800;font-size:22px}
+  h3{text-align:center;margin:6px 12px 16px;font-weight:500;color:#334155}
+  .card{background:#fff;border-radius:16px;padding:16px 14px;margin:16px 0;box-shadow:0 2px 10px rgba(2,6,23,0.06);position:relative}
+  .card h4{margin:0 0 8px;font-size:16px;font-weight:800;color:#0b1220}
+  .card p.hint{margin:4px 0 0;color:#475569;font-size:13px}
+  .options{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .opt{display:flex;align-items:center;gap:10px;line-height:1.3;padding:8px 10px;border-radius:12px}
+  .opt:hover{background:#f1f5f9}
+
+  /* Radio standard */
+  input[type=radio]{width:22px;height:22px;accent-color:var(--blue)}
+
+  /* Checkbox "pallino" (stile uguale ai radio, ma multiplo) */
+  input[type=checkbox].dot{
+    appearance:none; -webkit-appearance:none;
+    width:22px;height:22px;border-radius:50%;
+    border:2px solid var(--blue); background:#fff; position:relative;
+  }
+  input[type=checkbox].dot:checked::after{
+    content:""; position:absolute; left:50%; top:50%;
+    width:10px; height:10px; margin:-5px 0 0 -5px;
+    background:var(--blue); border-radius:50%;
+  }
+
+  label{user-select:none}
+  .help{border-radius:999px;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--blue);background:#fff;color:var(--blue);font-weight:800;margin-left:8px}
+  input[type=number]{font-size:16px;padding:12px;border:1px solid #d0d7e2;border-radius:12px;width:220px}
+  .warn{color:#b91c1c;margin-top:6px}
+  .sticky-cta{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,0.97);backdrop-filter:saturate(180%) blur(6px);border-top:1px solid #e5e7eb;padding:12px 16px;display:flex;gap:12px;justify-content:center;z-index:1000}
+  .btn{background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px 18px;font-size:16px;font-weight:700;box-shadow:0 4px 10px rgba(2,6,23,0.12);cursor:pointer}
+  .btn-white{background:#fff;color:var(--blue);border:2px solid var(--blue);border-radius:12px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer}
+  .btn-inline-white{display:inline-flex;align-items:center;gap:8px;margin-top:12px;background:#fff;color:var(--blue);text-decoration:none;border-radius:12px;padding:10px 14px;font-weight:700;border:2px solid var(--blue)}
+  .output{margin:16px auto 0;background:#fff;border:1px solid #e5e7eb;padding:16px;border-radius:12px;max-width:860px;box-shadow:0 2px 10px rgba(2,6,23,0.06);position:relative}
+  .output h5{margin:0 0 8px;font-size:18px;font-weight:900;color:#0b1220;letter-spacing:0.4px}
+  .copy-link{position:absolute;top:10px;right:12px;font-size:12px;color:#6b7280;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:3px 8px;cursor:pointer}
+  .err{margin:8px 0 0;color:#b91c1c;font-weight:700;text-align:center}
+  .modal{display:none;position:fixed;z-index:1100;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);padding:12px}
+  .modal-content{background:#fff;margin:8% auto;padding:20px;border-radius:16px;width:94%;max-width:720px;box-shadow:0 10px 30px rgba(2,6,23,0.25);position:relative}
+  .close{position:absolute;top:10px;right:16px;font-size:26px;font-weight:800;color:#64748b;cursor:pointer}
+  .close:hover{color:#0b1220}
+  button:focus,a:focus,input:focus{outline:3px solid #60a5fa;outline-offset:2px;border-radius:10px}
+
+  /* Header e pulsante di ritorno alla Home */
+  .header{
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--blue);
+    color:#fff;
+    font-weight:700;
+    position:sticky;
+    top:0;
+    z-index:5;
+    font-size:16px;       /* mobile base */
+    letter-spacing:0.3px;
+    text-transform:none;  /* mantiene "Nodules" con N maiuscola */
+  }
+  .header-back{
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    width:40px;
+    height:40px;
+    padding:8px;
+    border:0;
+    border-radius:10px;
+    background:transparent;
+    color:#fff;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .header-back.visible{display:flex}
+  .header-back svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .header-back:hover{background:rgba(255,255,255,.11)}
+  .header-back:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  @media (min-width:900px){
+    .header{
+      height:64px;        /* barra più spessa su desktop */
+      font-size:18px;     /* titolo leggermente più grande su desktop */
+      font-weight:800;
+    }
+  }
+
+  /* home */
+  .home-wrap{padding:20px;display:flex;flex-direction:column;gap:16px;align-items:stretch;justify-content:center}
+  .home-title{font-size:36px;font-weight:900;letter-spacing:1px;color:var(--blue);line-height:38px;text-align:center;margin-top:24px}
+  .home-sub{text-align:center;font-size:14px;color:#333;margin-top:8px}
+  .home-grid{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+  #screen-home.active{display:flex;flex-direction:column;min-height:calc(100vh - 56px);min-height:calc(100dvh - 56px)}
+  #screen-home .home-wrap{flex:1}
+  .home-credit{padding:16px 12px 22px;text-align:center;color:#a3acba;font-size:11px;line-height:1.65;font-weight:400;letter-spacing:.1px}
+  @media (min-width:900px){#screen-home.active{min-height:calc(100vh - 64px);min-height:calc(100dvh - 64px)}}
+
+  /* screen switch */
+  .screen{display:none}
+  .screen.active{display:block}
+
+  /* HOME centrata e più stretta su desktop */
+  @media (min-width:900px){
+    .home-grid{
+      width:50vw;      /* 50% viewport => margini laterali ~25% */
+      margin:0 auto;
+    }
+    .home-grid .btn,
+    .home-grid .btn-white{width:100%;}
+  }
+
+  /* Solo su desktop: campo Dimension più lungo (~1 cm ≈ 38px) */
+  @media (min-width:900px){
+    #dimensionInput{ width:260px; }
+  }
+</style>
+</head>
+<body>
+
+<noscript style="display:block;padding:12px;background:#fde68a;color:#7c2d12;text-align:center">
+  JavaScript disabilitato o con errori: mostro la HOME di anteprima.
+</noscript>
+
+<!-- Freccia visibile nelle sezioni interne: ritorno alla Home -->
+<div class="header" id="appHeader">
+  <button type="button" id="homeBackBtn" class="header-back" aria-label="Back to Home" title="Back to Home">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </button>
+  <span>EU-TIRADS Thyroid Nodules</span>
+</div>
+
+<!-- HOME -->
+<section id="screen-home" class="screen active">
+  <div class="home-wrap">
+    <div class="home-title">THYROID<br/>NODULES</div>
+    <div class="home-sub">
+      This app provides information on EU-TIRADS classification and thyroid nodules follow-up strategy.
+    </div>
+    <div class="home-grid">
+      <button class="btn" onclick="location.hash='#class'">EU TIRADS Classification</button>
+      <button class="btn" onclick="location.hash='#follow'">Follow Up Strategy</button>
+      <button class="btn-white" onclick="alert('Add your info/disclaimer/credits here')">Information about the app</button>
+    </div>
+  </div>
+  <footer class="home-credit">
+    Powered by Dott.Daniele Piasentin<br>
+    Endocrinologia e Malattie del Metabolismo<br>
+    AOVR
+  </footer>
+</section>
+
+<!-- CLASSIFICATION -->
+<section id="screen-class" class="screen">
+  <main class="container">
+    <h2>EU-TIRADS CLASSIFICATION</h2>
+    <h3>The EU-TIRADS Classification is based on Ultrasound features.</h3>
+
+    <p id="errTop" class="err" style="display:none"></p>
+
+    <div class="card" id="card-echo">
+      <h4>Echogenicity</h4>
+      <p class="hint">Select one option. Need help? Tap "?"</p>
+      <div class="options" id="echo-group">
+        <label class="opt"><input type="radio" name="echo" value="Anechoic/pure cysts or spongiform"> Anechoic / spongiform <button class="help" onclick="openModal('modal5')" aria-label="Open info">?</button></label>
+        <label class="opt"><input type="radio" name="echo" value="Isoechoic or Hyperechoic"> Isoechoic or hyperechoic <button class="help" onclick="openModal('modal6')" aria-label="Open info">?</button></label>
+        <label class="opt"><input type="radio" name="echo" value="Mildly Hypoechoic"> Mildly hypoechoic <button class="help" onclick="openModal('modal7')" aria-label="Open info">?</button></label>
+        <label class="opt"><input type="radio" name="echo" value="Marked Hypoechoic"> Marked hypoechoic <button class="help" onclick="openModal('modal8')" aria-label="Open info">?</button></label>
+      </div>
+    </div>
+
+    <div class="card" id="card-feat" style="display:none">
+      <h4>High-risk features</h4>
+      <p class="hint">Select one or more options. "None" clears the others.</p>
+      <div class="options" id="features-options">
+        <label class="opt"><input class="dot" type="checkbox" name="features" value="None"> None</label>
+        <label class="opt"><input class="dot" type="checkbox" name="features" value="Non-oval shape"> Non-oval shape <button class="help" onclick="openModal('modal1')" aria-label="Open info">?</button></label>
+        <label class="opt"><input class="dot" type="checkbox" name="features" value="Irregular margins"> Irregular margins <button class="help" onclick="openModal('modal2')" aria-label="Open info">?</button></label>
+        <label class="opt"><input class="dot" type="checkbox" name="features" value="Microcalcifications"> Microcalcifications <button class="help" onclick="openModal('modal3')" aria-label="Open info">?</button></label>
+      </div>
+    </div>
+
+    <div class="card output" id="output" role="status" aria-live="polite" style="display:none">
+      <button id="copyBtn" class="copy-link" title="Copy">Copy</button>
+      <h5>RECOMMENDATION</h5>
+      <div id="outSummary" style="color:#334155;font-size:13px;margin-bottom:8px"></div>
+      <div id="outText"></div>
+      <a class="btn-inline-white" id="followUpBtn" href="#">Discover FOLLOW UP STRATEGY ▸</a>
+    </div>
+  </main>
+
+  <div class="sticky-cta">
+    <button class="btn-white" id="resetBtn">Reset</button>
+    <button class="btn" id="calcBtn">CALCULATE</button>
+  </div>
+</section>
+
+<!-- FOLLOW-UP -->
+<section id="screen-follow" class="screen">
+  <main class="container">
+    <h2>FOLLOW UP STRATEGY</h2>
+    <h3>The follow-up strategy is based on EU-TIRADS classification, FNA result and nodule dimension.</h3>
+
+    <p id="errTopF" class="err" style="display:none"></p>
+
+    <div class="card" id="card-eu">
+      <h4>EU-TIRADS Classification</h4>
+      <p class="hint">Select one option.</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="eutirads" value="2"> EU-TIRADS 2</label>
+        <label class="opt"><input type="radio" name="eutirads" value="3"> EU-TIRADS 3</label>
+        <label class="opt"><input type="radio" name="eutirads" value="4"> EU-TIRADS 4</label>
+        <label class="opt"><input type="radio" name="eutirads" value="5"> EU-TIRADS 5</label>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:10px;">
+        <button id="btnNotKnown" class="btn-white">EU-TIRADS Classification not known</button>
+      </div>
+    </div>
+
+    <div class="card" id="card-fna" style="display:none">
+      <h4>FNA done?</h4>
+      <div class="options">
+        <label class="opt"><input type="radio" name="fnaDone" value="yes"> Yes</label>
+        <label class="opt"><input type="radio" name="fnaDone" value="no"> No</label>
+      </div>
+    </div>
+
+    <div class="card" id="card-fnac" style="display:none">
+      <h4>FNA Result</h4>
+      <div class="options">
+        <label class="opt"><input type="radio" name="fnacResult" value="TIR1"> TIR1</label>
+        <label class="opt"><input type="radio" name="fnacResult" value="TIR2"> TIR2</label>
+        <label class="opt"><input type="radio" name="fnacResult" value="TIR3A"> TIR3A</label>
+        <label class="opt"><input type="radio" name="fnacResult" value="TIR3B"> TIR3B</label>
+        <label class="opt"><input type="radio" name="fnacResult" value="TIR4"> TIR4</label>
+        <label class="opt"><input type="radio" name="fnacResult" value="TIR5"> TIR5</label>
+      </div>
+    </div>
+
+    <div class="card" id="card-dim" style="display:none">
+      <h4>Dimension (mm)</h4>
+      <div class="options">
+        <input type="number" id="dimensionInput" placeholder="Enter value between 1 and 300">
+        <small id="dimension-warning" class="warn"></small>
+        <small class="hint">Consider the longest axis of the nodule.</small>
+      </div>
+    </div>
+
+    <div class="card output" id="outputF" role="status" aria-live="polite" style="display:none">
+      <button class="copy-link" id="copyBtnF" title="Copy">Copy</button>
+      <h5>RECOMMENDATION</h5>
+      <div id="outFSummary" style="color:#334155;font-size:13px;margin-bottom:8px"></div>
+      <div id="outFText"></div>
+    </div>
+  </main>
+
+  <div class="sticky-cta">
+    <button class="btn-white" id="resetBtnF">Reset</button>
+    <button class="btn" id="calcBtnF">CALCULATE</button>
+  </div>
+</section>
+
+<!-- Modals (shared) -->
+<div id="modal1" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal1')">×</span><h2>Non-oval shape</h2><p>AP diameter greater than transverse.</p></div></div>
+<div id="modal2" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal2')">×</span><h2>Irregular margins</h2><p>Spiculated or microlobulated.</p></div></div>
+<div id="modal3" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal3')">×</span><h2>Microcalcifications</h2><p>Echogenic foci &lt; 1 mm in solid tissue.</p></div></div>
+<div id="modal5" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal5')">×</span><h2>Anechoic / spongiform</h2><p>Entirely or nearly entirely fluid; spongiform with tiny cystic spaces.</p></div></div>
+<div id="modal6" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal6')">×</span><h2>Isoechoic / hyperechoic</h2><p>Similar or brighter than healthy thyroid.</p></div></div>
+<div id="modal7" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal7')">×</span><h2>Mildly hypoechoic</h2><p>Darker than thyroid, lighter than strap muscles.</p></div></div>
+<div id="modal8" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('modal8')">×</span><h2>Marked hypoechoic</h2><p>As dark or darker than strap muscles.</p></div></div>
+
+<script>
+/* ------- helpers: navigation & modals ------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  var el=document.getElementById(id); if(el) el.classList.add('active');
+}
+function parseHash(){
+  // #home | #class | #follow | #follow?tier=3
+  var h=(location.hash||'').replace(/^#/,'');
+  var [route, query] = h.split('?');
+  var params = new URLSearchParams(query||'');
+  return { route: route||'', params };
+}
+function openModal(id){document.getElementById(id).style.display="block";}
+function closeModal(id){document.getElementById(id).style.display="none";}
+window.onclick=function(e){document.querySelectorAll(".modal").forEach(function(m){if(e.target===m)m.style.display="none";});};
+
+/* --- Routing --- */
+function applyRoute(){
+  var {route, params} = parseHash();
+  if(!route){ route = window.ReactNativeWebView ? 'class' : 'home'; }
+  document.getElementById('homeBackBtn').classList.toggle('visible', route!=='home');
+  if(route==='home'){ showScreen('screen-home'); return; }
+  if(route==='follow'){
+    showScreen('screen-follow');
+    var tier=params.get('tier');
+    if(tier && ['2','3','4','5'].includes(tier)){
+      var pre=document.querySelector('input[name="eutirads"][value="'+tier+'"]');
+      var cardFNA=document.getElementById("card-fna");
+      var cardDIM=document.getElementById("card-dim");
+      var btn=document.getElementById("btnNotKnown");
+      if(pre){ pre.checked=true; if(btn) btn.style.display="none";
+        if(tier==="2"){ cardFNA.style.display="none"; cardDIM.style.display="block"; }
+        else { cardFNA.style.display="block"; cardDIM.style.display="none"; }
+      }
+    }
+    return;
+  }
+  showScreen('screen-class');
+}
+window.addEventListener('hashchange', applyRoute);
+applyRoute();
+
+/* --- Pulsante freccia: torna alla home --- */
+function goHome(){
+  if(window.ReactNativeWebView){
+    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'OPEN_HOME' }));
+  } else {
+    location.hash = '#home';
+  }
+}
+document.getElementById('homeBackBtn').addEventListener('click', goHome);
+
+/* ------- CLASSIFICATION logic ------- */
+document.addEventListener("change",function(e){
+  if(e.target && e.target.name==="echo"){
+    var selected=(document.querySelector('input[name="echo"]:checked')||{}).value||"";
+    var feat=document.getElementById("card-feat");
+    if(selected==="Anechoic/pure cysts or spongiform"){ feat.style.display="none"; }
+    else { feat.style.display="block"; setTimeout(function(){ feat.scrollIntoView({behavior:"smooth",block:"start"}); },60); }
+    var err=document.getElementById("errTop"); if(err) err.style.display="none";
+  }
+});
+document.addEventListener("change",function(e){
+  if(e.target && e.target.name==="features"){
+    var none=document.querySelector('input[name="features"][value="None"]');
+    var others=[...document.querySelectorAll('input[name="features"]')].filter(x=>x.value!=="None");
+    if(e.target.value==="None"){ if(none.checked){ others.forEach(o=>o.checked=false); } }
+    else { none.checked=false; }
+  }
+});
+document.getElementById("copyBtn")?.addEventListener("click",function(){
+  var s=(document.getElementById("outText")||{}).textContent||""; if(!s)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s);}
+  else{var ta=document.createElement("textarea");ta.value=s;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(_){}
+  document.body.removeChild(ta);}
+});
+document.getElementById("resetBtn")?.addEventListener("click",function(){
+  document.querySelectorAll('input[name="echo"]').forEach(x=>x.checked=false);
+  document.querySelectorAll('input[name="features"]').forEach(x=>x.checked=false);
+  document.getElementById("card-feat").style.display="none";
+  var out=document.getElementById("output"); out.style.display="none";
+  var err=document.getElementById("errTop"); if(err){ err.textContent=""; err.style.display="none"; }
+});
+document.getElementById("followUpBtn")?.addEventListener("click",function(e){
+  e.preventDefault();
+  if(window.ReactNativeWebView){ window.ReactNativeWebView.postMessage(JSON.stringify({type:"OPEN_FOLLOWUP"})); }
+  else { location.hash="#follow"; }
+});
+document.getElementById("calcBtn")?.addEventListener("click",function(){
+  var echoEl=document.querySelector('input[name="echo"]:checked');
+  var echo=echoEl?echoEl.value:"";
+  var featChecked=[...document.querySelectorAll('input[name="features"]:checked')].map(x=>x.value);
+  var err=document.getElementById("errTop");
+  var out=document.getElementById("output");
+  var outS=document.getElementById("outSummary");
+  var outT=document.getElementById("outText");
+  if(!echo){ out.style.display="none"; if(err){ err.textContent="Please select an echogenicity option."; err.style.display="block"; } return; }
+  if(err) err.style.display="none";
+  var hasNone=(featChecked.length===0)||featChecked.indexOf("None")>-1;
+  var tier="", rom="", text="";
+  if(echo==="Anechoic/pure cysts or spongiform"){ tier="2"; rom="< 1%"; text="The nodule is classified as EU-TIRADS 2 (benign). The ROM (Risk of Malignancy) is < 1%."; }
+  else if(echo==="Isoechoic or Hyperechoic"){
+    if(hasNone){ tier="3"; rom="2–4%"; text="The nodule is classified as EU-TIRADS 3. Isoechoic or hyperechoic nodules with smooth margins and no high-risk features should be considered at low risk of malignancy. The ROM is 2–4%."; }
+    else { tier="5"; rom="26–87%"; text="Nodules with at least 1 high-risk feature should be considered high risk. The nodule is classified as EU-TIRADS 5. The ROM is 26–87%."; }
+  } else if(echo==="Mildly Hypoechoic"){
+    if(hasNone){ tier="4"; rom="6–17%"; text="The nodule is classified as EU-TIRADS 4. Oval, mildly hypoechoic nodules with smooth margins and no high-risk features have intermediate malignancy risk. ROM is 6–17%."; }
+    else { tier="5"; rom="26–87%"; text="Nodules with at least 1 high-risk feature should be considered high risk. The nodule is classified as EU-TIRADS 5. The ROM is 26–87%."; }
+  } else if(echo==="Marked Hypoechoic"){ tier="5"; rom="26–87%"; text="The nodule is classified as EU-TIRADS 5. Nodules with marked hypoechogenicity and/or at least 1 high-risk feature should be considered high risk. The ROM is 26–87%."; }
+  var featLabel=(featChecked.length?featChecked.join(", "):"None");
+  out.style.display="block";
+  outS.textContent="Echogenicity: " + echo + " · High-risk features: " + featLabel + ".";
+  outT.textContent=text;
+  setTimeout(function(){ out.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+  if(window.ReactNativeWebView){
+    window.ReactNativeWebView.postMessage(JSON.stringify({type:"CLASS_RESULT", tier:tier, rom:rom, text:text}));
+  }
+});
+
+/* ------- FOLLOW-UP logic ------- */
+function getRange(dim){if(dim>=1&&dim<=5)return"1-5";if(dim>5&&dim<=10)return"5.1-10";if(dim>10&&dim<=15)return"10.1-15";if(dim>15&&dim<=20)return"15.1-20";if(dim>20)return">20.1";return null;}
+var cardFNA=document.getElementById("card-fna");
+var cardFNAC=document.getElementById("card-fnac");
+var cardDIM=document.getElementById("card-dim");
+var dimI=document.getElementById("dimensionInput");
+var warn=document.getElementById("dimension-warning");
+var btnNotKnown=document.getElementById("btnNotKnown");
+
+document.addEventListener("change",function(e){
+  if(e.target && e.target.name==="eutirads"){
+    if(btnNotKnown) btnNotKnown.style.display = (e.target && e.target.value) ? "none" : "inline-flex";
+    cardFNAC.style.display="none"; cardDIM.style.display="none";
+    document.querySelectorAll('input[name="fnaDone"]').forEach(x=>x.checked=false);
+    document.querySelectorAll('input[name="fnacResult"]').forEach(x=>x.checked=false);
+    if(e.target.value==="2"){ cardFNA.style.display="none"; cardDIM.style.display="block"; if(dimI){dimI.focus();} setTimeout(function(){ cardDIM.scrollIntoView({behavior:"smooth",block:"start"}); },60); }
+    else { cardFNA.style.display="block"; setTimeout(function(){ cardFNA.scrollIntoView({behavior:"smooth",block:"start"}); },60); }
+    var ef=document.getElementById("errTopF"); if(ef) ef.style.display="none";
+  }
+});
+document.addEventListener("change",function(e){
+  if(e.target && e.target.name==="fnaDone"){
+    cardFNAC.style.display="none"; cardDIM.style.display="none";
+    document.querySelectorAll('input[name="fnacResult"]').forEach(x=>x.checked=false);
+    if(e.target.value==="yes"){ cardFNAC.style.display="block"; setTimeout(function(){ cardFNAC.scrollIntoView({behavior:"smooth",block:"start"}); },60); }
+    else { cardDIM.style.display="block"; if(dimI){dimI.focus();} setTimeout(function(){ cardDIM.scrollIntoView({behavior:"smooth",block:"start"}); },60); }
+  }
+});
+document.getElementById("copyBtnF")?.addEventListener("click",function(){
+  var s=(document.getElementById("outFText")||{}).textContent||""; if(!s)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s);}
+  else{var a=document.createElement("textarea");a.value=s;document.body.appendChild(a);a.select();try{document.execCommand("copy");}catch(_){}
+  document.body.removeChild(a);}
+});
+document.getElementById("resetBtnF")?.addEventListener("click",function(){
+  document.querySelectorAll('input[name="eutirads"]').forEach(x=>x.checked=false);
+  document.querySelectorAll('input[name="fnaDone"]').forEach(x=>x.checked=false);
+  document.querySelectorAll('input[name="fnacResult"]').forEach(x=>x.checked=false);
+  cardFNA.style.display="none"; cardFNAC.style.display="none"; cardDIM.style.display="none";
+  var out=document.getElementById("outputF"); out.style.display="none";
+  if(dimI){dimI.value="";} if(warn){warn.textContent="";}
+  var ef=document.getElementById("errTopF"); if(ef){ ef.textContent=""; ef.style.display="none"; }
+  if(btnNotKnown) btnNotKnown.style.display="inline-flex";
+});
+document.getElementById("btnNotKnown")?.addEventListener("click",function(){
+  if(window.ReactNativeWebView){ window.ReactNativeWebView.postMessage(JSON.stringify({type:"OPEN_CLASS"})); }
+  else { location.hash="#class"; }
+});
+document.getElementById("calcBtnF")?.addEventListener("click",function(){
+  var eEl=document.querySelector('input[name="eutirads"]:checked'); var e=eEl?eEl.value:"";
+  var fEl=document.querySelector('input[name="fnaDone"]:checked'); var f=fEl?fEl.value:"";
+  var cEl=document.querySelector('input[name="fnacResult"]:checked'); var c=cEl?cEl.value:"";
+  var d=parseFloat(dimI?dimI.value:"");
+  var out=document.getElementById("outputF"); var o=document.getElementById("outFText"); var s=document.getElementById("outFSummary");
+  var ef=document.getElementById("errTopF"); if(warn) warn.textContent="";
+  if(!e){ out.style.display="none"; if(ef){ef.textContent="Please select EUTIRADS classification."; ef.style.display="block";} return; }
+  if(e==="2"){
+    if(isNaN(d)||d<1||d>300){ if(warn) warn.textContent="Dimension must be between 1 and 300."; return; }
+    var r=getRange(d);
+    var normal="EUTIRADS 2 nodules should be considered as benign. The ROM (Risk of Malignancy) is < 1%. FNA is not indicated.";
+    var next=(["1-5","5.1-10","10.1-15"].indexOf(r)>-1) ? "Based on the nodule's dimensions no further evaluation is recommended." : "Based on the nodule's dimensions repeat US in 3–5 years.";
+    out.style.display="block";
+    o.textContent="RECOMMENDATION: " + normal + " " + next;
+    s.textContent="EU-TIRADS: 2 · FNA: n/a · Dimension: " + d + " mm.";
+    setTimeout(function(){ out.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+    return;
+  }
+  if(!f){ out.style.display="none"; if(ef){ef.textContent="Please select FNA status."; ef.style.display="block";} return; }
+  if(f==="no"){
+    if(isNaN(d)||d<1||d>300){ if(warn) warn.textContent="Dimension must be between 1 and 300."; return; }
+    var rg=getRange(d);
+    var risk={"3":"low","4":"intermediate","5":"high"}[e];
+    var rom={"3":"2–4%","4":"6–17%","5":"26–87%"}[e];
+    var base="RECOMMENDATION: EUTIRADS " + e + " nodules should be considered at " + risk + " risk of malignancy. The ROM is " + rom + ". ";
+    var bold="";
+    if(e==="3"){
+      if(["1-5","5.1-10"].indexOf(rg)>-1) bold="Based on the nodule's dimensions no further evaluation is recommended.";
+      else if(["10.1-15","15.1-20"].indexOf(rg)>-1) bold="Based on the nodule's dimensions repeat US in 1–3 years.";
+      else bold="Based on the nodule's dimensions FNA is recommended.";
+    } else if(e==="4"){
+      if(["1-5","5.1-10","10.1-15"].indexOf(rg)>-1) bold="Based on the nodule's dimensions, repeat US in 1 year.";
+      else bold="Based on the nodule's dimensions, FNA is recommended.";
+    } else if(e==="5"){
+      if(["1-5","5.1-10"].indexOf(rg)>-1) bold="Based on the nodule's dimensions, repeat US in 6–12 months.";
+      else bold="Based on the nodule's dimensions, FNA is recommended.";
+    }
+    out.style.display="block";
+    o.textContent=base+bold;
+    s.textContent="EU-TIRADS: " + e + " · FNA: no · Dimension: " + d + " mm.";
+    setTimeout(function(){ out.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+    return;
+  }
+  if(f==="yes"){
+    if(!c){ out.style.display="none"; if(ef){ef.textContent="Please select FNAC result."; ef.style.display="block";} return; }
+    var phrases={
+      "3-TIR1":"The ROM (Risk of Malignancy) is 1–4%. Repeat FNAC. If still TIR1 consider CNB if available.",
+      "3-TIR2":"The ROM is <3%. Repeat US in 3–5 years.",
+      "3-TIR3A":"The ROM is 5–15%. Repeat FNAC. If still TIR3A: repeat US within 1 year or consider molecular testing (if available), or offer surgery.",
+      "3-TIR3B":"The ROM is 15–30%. Offer surgery or molecular testing if available.",
+      "3-TIR4":"The ROM is 60–70%. Offer surgery.",
+      "3-TIR5":"The ROM is 97–99%. Offer surgery.",
+      "4-TIR1":"The ROM is 1–4%. Repeat FNAC. If still TIR1 consider CNB if available.",
+      "4-TIR2":"The ROM is <3%. Repeat US in 3–5 years.",
+      "4-TIR3A":"The ROM is 5–15%. Repeat FNAC. If still TIR3A: offer surgery, or surveillance or molecular testing.",
+      "4-TIR3B":"The ROM is 15–30%. Offer surgery or molecular testing if available.",
+      "4-TIR4":"The ROM is 60–70%. Offer surgery.",
+      "4-TIR5":"The ROM is 97–99%. Offer surgery.",
+      "5-TIR1":"The ROM is 1–4%. Repeat FNAC. If still TIR1 consider CNB if available.",
+      "5-TIR2":"The ROM is <3%. Repeat FNAC (imaging and pathology are not concordant).",
+      "5-TIR3A":"The ROM is 5–15%. Repeat FNAC. If still TIR3A: offer surgery, or surveillance or molecular testing.",
+      "5-TIR3B":"The ROM is 15–30%. Offer surgery or molecular testing if available.",
+      "5-TIR4":"The ROM is 60–70%. Offer surgery.",
+      "5-TIR5":"The ROM is 97–99%. Offer surgery."
+    };
+    var key=e+"-"+c; var result=phrases[key]||"Combination not recognized.";
+    out.style.display="block";
+    o.textContent="RECOMMENDATION: " + result;
+    s.textContent="EU-TIRADS: " + e + " · FNA: yes · FNAC: " + c + ".";
+    setTimeout(function(){ out.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+  }
+});
+</script>
+</body>
+</html>
