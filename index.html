@@ -158,10 +158,10 @@
   #modal1 .modal-images img,#modal2 .modal-images img,#modal3 .modal-images img{background:transparent;max-width:335px;margin:0 auto}
 
   /* Small thyroid mark on the Home screen */
-  #screen-home .home-wrap{padding-top:42px;padding-bottom:20px}
+  #screen-home .home-wrap{padding-top:56px;padding-bottom:20px}
   .home-thyroid-icon{display:block;width:100px;height:auto;max-width:27vw;margin:0 auto 0;object-fit:contain}
   #screen-home .home-title{margin-top:8px}
-  @media(max-height:620px){#screen-home .home-wrap{padding-top:20px}.home-thyroid-icon{width:76px}}
+  @media(max-height:620px){#screen-home .home-wrap{padding-top:30px}.home-thyroid-icon{width:76px}}
 </style>
 </head>
 <body>
@@ -175,7 +175,7 @@
   <button type="button" id="homeBackBtn" class="header-back" aria-label="Back to Home" title="Back to Home">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
   </button>
-  <span>EU-TIRADS Thyroid Nodules</span>
+  <span>Thyroid Nodules Algorithm</span>
 </div>
 
 <!-- HOME -->
@@ -361,14 +361,35 @@ function closeModal(id){
 window.addEventListener('click',function(e){if(e.target.classList && e.target.classList.contains('modal'))closeModal(e.target.id);});
 window.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal').forEach(m=>{if(m.style.display==='flex')closeModal(m.id);});}});
 
+/* Clear form state whenever a section is opened anew. */
+function resetClassificationOnEntry(){
+  document.querySelectorAll('input[name="echo"], input[name="features"]').forEach(function(input){input.checked=false;});
+  document.getElementById('card-feat').style.display='none';
+  document.getElementById('output').style.display='none';
+  ['outSummary','outText'].forEach(function(id){document.getElementById(id).textContent='';});
+  var error=document.getElementById('errTop'); error.textContent=''; error.style.display='none';
+}
+function resetFollowUpOnEntry(){
+  document.querySelectorAll('input[name="eutirads"], input[name="fnaDone"], input[name="fnacResult"]').forEach(function(input){input.checked=false;});
+  ['card-fna','card-fnac','card-dim','outputF'].forEach(function(id){document.getElementById(id).style.display='none';});
+  ['outFSummary','outFText'].forEach(function(id){document.getElementById(id).textContent='';});
+  document.getElementById('dimensionInput').value='';
+  document.getElementById('dimension-warning').textContent='';
+  var error=document.getElementById('errTopF');error.textContent='';error.style.display='none';
+  document.getElementById('btnNotKnown').style.display='inline-flex';
+}
+var currentSection=null;
 /* --- Routing --- */
 function applyRoute(){
   var {route, params} = parseHash();
   if(!route){ route = window.ReactNativeWebView ? 'class' : 'home'; }
+  var enteringNewSection = currentSection !== route;
+  currentSection = route;
   document.getElementById('homeBackBtn').classList.toggle('visible', route!=='home');
   if(route==='home'){ showScreen('screen-home'); return; }
   if(route==='info'){ showScreen('screen-info'); return; }
   if(route==='follow'){
+    if(enteringNewSection) resetFollowUpOnEntry();
     showScreen('screen-follow');
     var tier=params.get('tier');
     if(tier && ['2','3','4','5'].includes(tier)){
@@ -383,6 +404,7 @@ function applyRoute(){
     }
     return;
   }
+  if(enteringNewSection) resetClassificationOnEntry();
   showScreen('screen-class');
 }
 window.addEventListener('hashchange', applyRoute);
